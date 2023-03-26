@@ -6,6 +6,8 @@ export class Keyboard {
   #keyboardEl;
   #inputGroupEl;
   #inputEl;
+  #keyPress = false;
+  #mouseDown = false;
 
   constructor() {
     this.#assignElement();
@@ -27,6 +29,33 @@ export class Keyboard {
     document.addEventListener("keydown", this.#onKeyDown.bind(this));
     document.addEventListener("keyup", this.#onKeyUp.bind(this));
     this.#inputEl.addEventListener("input", this.#onInput);
+    this.#keyboardEl.addEventListener(
+      "mousedown",
+      this.#onMouseDown.bind(this)
+    );
+    document.addEventListener("mouseup", this.#onMouseUp.bind(this));
+  }
+  #onMouseUp(event) {
+    if (this.#keyPress) return;
+    this.#mouseDown = false;
+    const keyEl = event.target.closest("div.key");
+    const isActive = !!keyEl?.classList.contains("active");
+    const val = keyEl?.dataset.val;
+    if (isActive && !!val) {
+      if (val === "Space") {
+        this.#inputEl.value += " ";
+      } else if (val === "Backspace") {
+        this.#inputEl.value = this.#inputEl.value.slice(0, -1);
+      } else {
+        this.#inputEl.value += val;
+      }
+    }
+    this.#keyboardEl.querySelector(".active")?.classList.remove("active");
+  }
+  #onMouseDown(event) {
+    if (this.#keyPress) return;
+    this.#mouseDown = true;
+    event.target.closest("div.key")?.classList.add("active");
   }
 
   #onInput(event) {
@@ -34,6 +63,8 @@ export class Keyboard {
   }
 
   #onKeyDown(event) {
+    if (this.#mouseDown) return;
+    this.#keyPress = true;
     this.#inputGroupEl.classList.toggle("error", /[ㄱ-힣]/.test(event.key));
 
     this.#keyboardEl
@@ -42,6 +73,8 @@ export class Keyboard {
   }
 
   #onKeyUp(event) {
+    if (this.#mouseDown) return;
+    this.#keyPress = false;
     this.#keyboardEl
       .querySelector(`[data-code=${event.code}]`)
       ?.classList.remove("active");
