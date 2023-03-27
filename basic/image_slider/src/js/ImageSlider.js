@@ -5,6 +5,10 @@ export default class ImageSlider {
 
   #sliderWidth = 0;
 
+  #intervalId;
+
+  #autoplay = true;
+
   sliderWrapEl;
 
   sliderListEl;
@@ -14,6 +18,8 @@ export default class ImageSlider {
   prevBtnEl;
 
   indicatorWrapEl;
+
+  controlWrapEl;
 
   constructor() {
     this.assignElement();
@@ -29,6 +35,7 @@ export default class ImageSlider {
     this.nextBtnEl = this.sliderWrapEl.querySelector('#next');
     this.prevBtnEl = this.sliderWrapEl.querySelector('#previous');
     this.indicatorWrapEl = this.sliderWrapEl.querySelector('#indicator-wrap');
+    this.controlWrapEl = this.sliderWrapEl.querySelector('#control-wrap');
   }
 
   initSliderNumber() {
@@ -45,7 +52,13 @@ export default class ImageSlider {
     }px`;
   }
 
+  initAutoPlay() {
+    this.#intervalId = setInterval(this.moveToRight.bind(this), 3000);
+    this.#autoplay = true;
+  }
+
   init() {
+    this.initAutoPlay();
     this.initSliderNumber();
     this.initSliderWidth();
     this.initSliderListWidth();
@@ -58,6 +71,7 @@ export default class ImageSlider {
       'click',
       this.onClickIndicator.bind(this),
     );
+    this.controlWrapEl.addEventListener('click', this.togglePlay.bind(this));
   }
 
   moveToRight() {
@@ -68,6 +82,11 @@ export default class ImageSlider {
     this.sliderListEl.style.left = `-${
       this.#sliderWidth * this.#currentPosition
     }px`;
+
+    if (this.#autoplay) {
+      clearInterval(this.#intervalId);
+      this.#intervalId = setInterval(this.moveToRight.bind(this), 3000);
+    }
     this.setIndicator();
   }
 
@@ -79,6 +98,11 @@ export default class ImageSlider {
     this.sliderListEl.style.left = `-${
       this.#sliderWidth * this.#currentPosition
     }px`;
+
+    if (this.#autoplay) {
+      clearInterval(this.#intervalId);
+      this.#intervalId = setInterval(this.moveToRight.bind(this), 3000);
+    }
     this.setIndicator();
   }
 
@@ -107,6 +131,20 @@ export default class ImageSlider {
         this.#sliderWidth * this.#currentPosition
       }px`;
       this.setIndicator();
+    }
+  }
+
+  togglePlay(event) {
+    const { status } = event.target.dataset;
+    if (status === 'play') {
+      this.controlWrapEl.classList.add('play');
+      this.controlWrapEl.classList.remove('pause');
+      this.initAutoPlay();
+    } else if (status === 'pause') {
+      this.#autoplay = false;
+      this.controlWrapEl.classList.remove('play');
+      this.controlWrapEl.classList.add('pause');
+      clearInterval(this.#intervalId);
     }
   }
 }
