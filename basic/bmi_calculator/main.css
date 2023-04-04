@@ -4,7 +4,7 @@
   background-color: #2699fb;
   color: #fff;
   border-radius: 4px;
-  display: flex;
+  display: inline-flex;
   justify-content: center;
   align-items: center;
 
@@ -49,4 +49,25 @@
 .form-inp label {
   font-size: 12px;
   color: #48aeff;
+}
+
+#res {
+  display: none;
+  margin-top: 24px;
+  flex-direction: column;
+  gap: 24px;
+  width: 588px;
+}
+
+.res-text {
+  color: #49aeff;
+  text-align: center;
+}
+
+.res-text > div:nth-child(1) {
+  font-size: 32px;
+}
+
+.res-text > div:nth-child(2) {
+  font-size: 24px;
 }
