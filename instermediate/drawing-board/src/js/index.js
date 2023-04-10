@@ -4,6 +4,7 @@ class DrawingBoard {
   eraserColor = "#FFFFFF";
   backgroundColor = "#FFFFFF";
   isNavigatorVisible = false;
+  undoArray = [];
   constructor() {
     this.assignElement();
     this.initContext();
@@ -26,6 +27,7 @@ class DrawingBoard {
     this.navigatorImageContainerEl = this.containerEl.querySelector("#imgNav");
     this.navigatorImageEl =
       this.navigatorImageContainerEl.querySelector("#canvasImg");
+    this.undoEl = this.toolbarEl.querySelector("#undo");
   }
   initContext() {
     this.context = this.canvasEl.getContext("2d");
@@ -51,6 +53,36 @@ class DrawingBoard {
       "click",
       this.onClickNavigator.bind(this)
     );
+    this.undoEl.addEventListener("click", this.onClickUndo.bind(this));
+  }
+  onClickUndo() {
+    if (this.undoArray.length === 0) {
+      alert("더이상 실행 취소 불가합니다!");
+      return;
+    }
+    let previousDataUrl = this.undoArray.pop();
+    let previousImage = new Image();
+    previousImage.onload = () => {
+      this.context.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
+      this.context.drawImage(
+        previousImage,
+        0,
+        0,
+        this.canvasEl.width,
+        this.canvasEl.height,
+        0,
+        0,
+        this.canvasEl.width,
+        this.canvasEl.height
+      );
+    };
+    previousImage.src = previousDataUrl;
+  }
+  saveState() {
+    if (this.undoArray.length > 4) {
+      this.undoArray.shift();
+    }
+    this.undoArray.push(this.canvasEl.toDataURL());
   }
   onClickNavigator(event) {
     this.isNavigatorVisible = !event.currentTarget.classList.contains("active");
@@ -96,6 +128,7 @@ class DrawingBoard {
       this.context.strokeStyle = this.eraserColor;
       this.context.lineWidth = 50;
     }
+    this.saveState();
   }
 
   onMouseMove(event) {
