@@ -26,6 +26,7 @@ class Router {
 
   init() {
     window.addEventListener("hashchange", this.checkRoutes.bind(this));
+    window.addEventListener("DOMContentLoaded", this.checkRoutes.bind(this));
     if (!window.location.hash) {
       window.location.hash = "#/";
     }
